@@ -46,7 +46,7 @@ env:
   HA_MODE: true
   # Space-separated of supported Azure regions: one will be picked randomly for each cluster
   AZURE_REGIONS: "westus3"
-  ARM_REGIONS: "westus2"
+  ARM_REGIONS: "westcentralus"
   # Container registry where to cache e2e test images
   DAPR_CACHE_REGISTRY: "dapre2eacr.azurecr.io"
 
@@ -98,7 +98,7 @@ jobs:
       - name: Deploy the test cluster
         if: env.TEST_PREFIX != ''
         run: |
-          # Select two random Azure regions
+          # Select three random Azure regions
           REGIONS=(${{ env.AZURE_REGIONS }})
           REGIONS_SIZE=${#REGIONS[@]}
           REGIONS_IDX=$(($RANDOM % $REGIONS_SIZE))
