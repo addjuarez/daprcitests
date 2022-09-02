@@ -135,7 +135,7 @@ jobs:
         shell: bash
 
   build:
-    name: Build for  ${{ matrix.target_os }}
+    name: Build for  ${{ matrix.target_os }} on ${{ matrix.target_arch }}
     runs-on: ${{ matrix.os }}
     env:
       GOOS: ${{ matrix.target_os }}
@@ -146,16 +146,15 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-2019]
+        target_arch: [amd64]
         include:
           - os: ubuntu-latest
             target_os: linux
-            target_arch: amd64
-          - os: ubuntu-latest
-            target_os: linux
-            target_arch: arm64
           - os: windows-2019
             target_os: windows
-            target_arch: amd64
+          - target_arch: arm64
+            target_os: linux
+            os: latest
     steps:
       - name: Set up for scheduled test
         if: github.event_name != 'repository_dispatch'
@@ -293,7 +292,7 @@ jobs:
         shell: bash
 
   test-e2e:
-    name: End-to-end ${{ matrix.target_os }} tests
+    name: End-to-end ${{ matrix.target_os }} on ${{ matrix.target_arch }} tests
     needs:
       - build
       - deploy-infrastructure
@@ -308,7 +307,10 @@ jobs:
       fail-fast: false
       matrix:
         target_os: [linux, windows]
-        target_arch: [amd64]
+        target_arch: [amd64, arm64]
+        exclude:
+          - target_os: windows
+            target_arch: arm64
     steps:
       - name: Set up log paths
         run: |
