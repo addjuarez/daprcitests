@@ -46,7 +46,7 @@ env:
   HA_MODE: true
   # Space-separated of supported Azure regions: one will be picked randomly for each cluster
   AZURE_REGIONS: "westus3"
-  ARM_REGIONS: "westcentralus"
+  ARM_REGIONS: "eastus"
   # Container registry where to cache e2e test images
   DAPR_CACHE_REGISTRY: "dapre2eacr.azurecr.io"
 
