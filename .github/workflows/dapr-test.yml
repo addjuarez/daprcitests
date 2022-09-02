@@ -22,19 +22,11 @@
 name: dapr-test
 
 on:
-  # Run every 2 hours
-  schedule:
-    - cron: '0 */2 * * *'
   # Manual trigger
   workflow_dispatch:
   # Dispatch on external events
   repository_dispatch:
     types: [e2e-test]
-  pull_request:
-    branches:
-      - master
-      - release-*
-      - feature/*
 env:
   # Version of Go
   GOVER: "1.19"
