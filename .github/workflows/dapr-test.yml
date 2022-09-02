@@ -542,3 +542,9 @@ jobs:
           echo "Starting removal of resource group Dapr-E2E-${{ env.TEST_PREFIX }}w"
           az group delete --no-wait --yes --name "Dapr-E2E-${{ env.TEST_PREFIX }}w" || true
         shell: bash
+      - name: Delete Arm64 cluster
+        run: |
+          # We are not waiting for these commands to complete, and we're ignoring errors
+          echo "Starting removal of resource group Dapr-E2E-${{ env.TEST_PREFIX }}la"
+          az group delete --no-wait --yes --name "Dapr-E2E-${{ env.TEST_PREFIX }}la" || true
+        shell: bash
