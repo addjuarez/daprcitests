@@ -154,7 +154,7 @@ jobs:
             target_os: windows
           - target_arch: arm64
             target_os: linux
-            os: latest
+            os: ubuntu-latest
     steps:
       - name: Set up for scheduled test
         if: github.event_name != 'repository_dispatch'
