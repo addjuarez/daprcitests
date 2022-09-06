@@ -231,6 +231,8 @@ jobs:
           TEST_PREFIX=""
           if [ "${{ env.TARGET_OS }}" == "windows" ] ; then
             TEST_PREFIX="dapre2e${SUFFIX}w"
+          elif [ "${{ env.TARGET_ARCH }}" == "arm64" ] ; then  
+            TEST_PREFIX="dapre2e${SUFFIX}la"
           else
             TEST_PREFIX="dapre2e${SUFFIX}l"
           fi
