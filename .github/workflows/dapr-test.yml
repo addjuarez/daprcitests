@@ -202,7 +202,7 @@ jobs:
             ~/go/pkg/mod
           key: ${{ runner.os }}-${{ env.TARGET_ARCH }}-go-build-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-go-build-
+            ${{ runner.os }}-${{ env.TARGET_ARCH }}-go-build-${{ hashFiles('**/go.sum') }}
       - name: Cache Go modules (Windows)
         if: env.CHECKOUT_REPO != '' && runner.os == 'Windows'
         uses: actions/cache@v3
@@ -210,9 +210,9 @@ jobs:
           path: |
             ~\AppData\Local\go-build
             ~\go\pkg\mod
-          key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.os }}-${{ env.TARGET_ARCH }}-go-build-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-go-build-
+            ${{ runner.os }}-${{ env.TARGET_ARCH }}-go-build-${{ hashFiles('**/go.sum') }}
       - name: Login to Azure
         if: env.CHECKOUT_REPO != ''
         uses: azure/login@v1
