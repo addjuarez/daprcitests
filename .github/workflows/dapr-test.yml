@@ -48,7 +48,7 @@ env:
   AZURE_REGIONS: "westus3"
   ARM_REGIONS: "eastus"
   # Container registry where to cache e2e test images
-  DAPR_CACHE_REGISTRY: ""
+  DAPR_CACHE_REGISTRY: "dapre2eacr.azurecr.io"
 
 jobs:
   deploy-infrastructure:
@@ -200,7 +200,7 @@ jobs:
           path: |
             ~/.cache/go-build
             ~/go/pkg/mod
-          key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.os }}-${{ env.TARGET_ARCH }}-go-build-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-build-
       - name: Cache Go modules (Windows)
