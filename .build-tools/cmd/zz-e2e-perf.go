@@ -315,8 +315,8 @@ func (c *cmdE2EPerf) buildDockerImage(cachedImage string) error {
 	if c.flags.TargetArch == "arm64" {
 		fmt.Printf("Building Docker image: %s\n", destImage)
 		e = exec.Command("docker",
-			"build",
 			"buildx",
+			"build",
 			"-f", dockerfile,
 			"-t", destImage,
 			"--platform", "linux/arm64/v8",
