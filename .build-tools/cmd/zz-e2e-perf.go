@@ -312,8 +312,8 @@ func (c *cmdE2EPerf) buildDockerImage(cachedImage string) error {
 		filepath.Join(appDir, c.flags.Name, "."),
 	)
 
-	if c.flags.TargetArch == "arm64" {
-		fmt.Printf("Building Docker arm64 image: %s\n", destImage)
+	if runtime.GOARCH != "arm64", c.flags.TargetArch == "arm64" {
+		fmt.Printf("Building arm64 docker image: %s\n", destImage)
 		e = exec.Command("docker",
 			"buildx",
 			"build",
@@ -331,9 +331,7 @@ func (c *cmdE2EPerf) buildDockerImage(cachedImage string) error {
 		fmt.Println("'docker build' returned an error:", err)
 		return err
 	}
-	if c.flags.TargetArch == "arm64" {
-		return nil
-	}
+
 	// Push to the cache, if needed
 	if c.flags.CacheRegistry != "" {
 		fmt.Printf("Pushing image %s to cache…\n", cachedImage)
