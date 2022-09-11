@@ -319,7 +319,7 @@ func (c *cmdE2EPerf) buildDockerImage(cachedImage string) error {
 			"build",
 			"--platform", "linux/arm64/v8",
 			"-f", dockerfile,
-			"-t", destImage+":bozo",
+			"-t", destImage,
 			filepath.Join(appDir, c.flags.Name, "."),
 			"--push",
 		)
