@@ -321,7 +321,7 @@ func (c *cmdE2EPerf) buildDockerImage(cachedImage string) error {
 			"-f", dockerfile,
 			"-t", destImage,
 			filepath.Join(appDir, c.flags.Name, "."),
-			"--push",
+			"--load",
 		)
 	}
 	e.Stdout = os.Stdout
