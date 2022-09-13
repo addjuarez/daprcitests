@@ -313,11 +313,11 @@ func (c *cmdE2EPerf) buildDockerImage(cachedImage string) error {
 	}
 	switch c.flags.TargetArch {
 	case "arm64":
-		args = append(args, "--platform", "linux/arm64/v8")
+		args = append(args, "--platform", c.flags.TargetOS+"/arm64/v8")
 	case "amd64":
-		args = append(args, "--platform", "linux/amd64")
+		args = append(args, "--platform", c.flags.TargetOS+"/amd64")
 	default:
-		args = append(args, "--platform", "linux/amd64")
+		args = append(args, "--platform", c.flags.TargetOS+"/amd64")
 	}
 	e := exec.Command("docker", args...)
 
