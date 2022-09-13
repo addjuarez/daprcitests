@@ -139,7 +139,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       GOOS: ${{ matrix.target_os }}
-      GOARCH: amd64
+      GOARCH: ${{ matrix.target_arch }}
       TARGET_OS: ${{ matrix.target_os }}
       TARGET_ARCH: ${{ matrix.target_arch }}
     strategy:
