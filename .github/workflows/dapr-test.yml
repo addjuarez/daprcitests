@@ -248,7 +248,7 @@ jobs:
         if: env.TEST_PREFIX != ''
         run: |
           make build
-          if [ "${{ env.TARGET_OS }}" = "linux" ] && [ "${{ env.TARGET_ARCH }}" != "arm64" ]; then
+          if [ "${{ env.TARGET_OS }}" = "linux" ] && [ "${{ env.TARGET_ARCH }}" != "arm" ]; then
             # For Linux, we use images based on Mariner
             DOCKERFILE=Dockerfile-mariner make docker-build
           else
@@ -381,7 +381,7 @@ jobs:
           TEST_PREFIX=""
           if [ "${{ env.TARGET_OS }}" == "windows" ] ; then
             TEST_PREFIX="dapre2e${SUFFIX}w"
-          elif [ "${{ env.TARGET_ARCH }}" == "arm64" ] ; then  
+          elif [ "${{ env.TARGET_ARCH }}" == "arm" ] ; then  
             TEST_PREFIX="dapre2e${SUFFIX}la"
           else
             TEST_PREFIX="dapre2e${SUFFIX}l"
