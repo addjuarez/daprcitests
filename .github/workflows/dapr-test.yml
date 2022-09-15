@@ -126,6 +126,8 @@ jobs:
                 dateTag="${DATE_TAG}" \
                 diagLogAnalyticsWorkspaceResourceId="${{ secrets.AZURE_DIAG_LOG_ANALYTICS_WORKSPACE_ID }}" \
                 diagStorageResourceId="${{ secrets.AZURE_DIAG_STORAGE_ID }}" \
+                armDiagLogAnalyticsWorkspaceResourceId="${{ secrets.ARM_AZURE_DIAG_LOG_ANALYTICS_WORKSPACE_ID }}" \
+                armDiagStorageResourceId="${{ secrets.ARM_AZURE_DIAG_STORAGE_ID }}" \
               && success=true \
               && break \
               || sleep 120
