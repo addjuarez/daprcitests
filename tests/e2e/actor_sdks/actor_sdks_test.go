@@ -55,16 +55,6 @@ func TestMain(m *testing.M) {
 	// and will be cleaned up after all tests are finished automatically
 	apps = []kube.AppDescription{
 		{
-			AppName:          "actorpython",
-			DaprEnabled:      true,
-			ImageName:        "e2e-actorpython",
-			Replicas:         1,
-			IngressEnabled:   true,
-			MetricsEnabled:   true,
-			AppMemoryLimit:   "200Mi",
-			AppMemoryRequest: "100Mi",
-		},
-		{
 			AppName:          "actordotnet",
 			DaprEnabled:      true,
 			ImageName:        "e2e-actordotnet",
@@ -73,6 +63,16 @@ func TestMain(m *testing.M) {
 			MetricsEnabled:   true,
 			AppMemoryLimit:   "500Mi",
 			AppMemoryRequest: "200Mi",
+		},
+		{
+			AppName:          "actorpython",
+			DaprEnabled:      true,
+			ImageName:        "e2e-actorpython",
+			Replicas:         1,
+			IngressEnabled:   true,
+			MetricsEnabled:   true,
+			AppMemoryLimit:   "200Mi",
+			AppMemoryRequest: "100Mi",
 		},
 	}
 

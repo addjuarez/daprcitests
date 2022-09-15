@@ -18,6 +18,8 @@
 # Optional secrets:
 # - AZURE_DIAG_LOG_ANALYTICS_WORKSPACE_ID: Resource ID of the Log Analytics Workspace where to store certain diagnostic logs (e.g. `/subscriptions/<subscription>/resourcegroups/<resource group>/providers/Microsoft.OperationalInsights/workspaces/<workspace name>`)
 # - AZURE_DIAG_STORAGE_ID: Resource ID of the Azure Storage account where to store certain diagnostic logs (e.g. `/subscriptions/<subscription>/resourcegroups/<resource group>/providers/Microsoft.Storage/storageAccounts/<storage account name>`)
+# - AZURE_ARM_DIAG_LOG_ANALYTICS_WORKSPACE_ID: Resource ID of the Log Analytics Workspace where to store certain diagnostic logs for Arm64 (e.g. `/subscriptions/<subscription>/resourcegroups/<resource group>/providers/Microsoft.OperationalInsights/workspaces/<workspace name>`)
+# - AZURE_ARM_DIAG_STORAGE_ID: Resource ID of the Azure Storage account where to store certain diagnostic logs for Arm64 (e.g. `/subscriptions/<subscription>/resourcegroups/<resource group>/providers/Microsoft.Storage/storageAccounts/<storage account name>`)
 
 name: dapr-test
 
@@ -149,10 +151,10 @@ jobs:
                 location2=${REGION2} \
                 location3=${REGION3} \
                 dateTag="${DATE_TAG}" \
-                diagLogAnalyticsWorkspaceResourceId="/subscriptions/07d1c04d-dba4-4685-912b-6f26e53b8401/resourcegroups/dapr-e2e-logs/providers/microsoft.operationalinsights/workspaces/dape2elogs41la" \
-                diagStorageResourceId="/subscriptions/07d1c04d-dba4-4685-912b-6f26e53b8401/resourceGroups/Dapr-E2E-Logs/providers/Microsoft.Storage/storageAccounts/dape2elogs41sa" \
-                armDiagLogAnalyticsWorkspaceResourceId="/subscriptions/07d1c04d-dba4-4685-912b-6f26e53b8401/resourcegroups/dapr-e2e-logs/providers/microsoft.operationalinsights/workspaces/dape2elogs41ala" \
-                armDiagStorageResourceId="/subscriptions/07d1c04d-dba4-4685-912b-6f26e53b8401/resourceGroups/Dapr-E2E-Logs/providers/Microsoft.Storage/storageAccounts/dape2elogs41asa" \
+                diagLogAnalyticsWorkspaceResourceId="${{ secrets.AZURE_DIAG_LOG_ANALYTICS_WORKSPACE_ID }}" \
+                diagStorageResourceId="${{ secrets.AZURE_DIAG_STORAGE_ID }}" \
+                armDiagLogAnalyticsWorkspaceResourceId="${{ secrets.AZURE_ARM_DIAG_LOG_ANALYTICS_WORKSPACE_ID }}" \
+                armDiagStorageResourceId="${{ secrets.AZURE_ARM_DIAG_STORAGE_ID }}" \
               && success=true \
               && break \
               || sleep 120
