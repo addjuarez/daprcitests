@@ -43,9 +43,9 @@ param diagStorageResourceId string = ''
 var osDiskSizeGB = 0
 
 // Version of Kubernetes
-var kubernetesVersion = '1.22.6'
+var kubernetesVersion = '1.22.11'
 
-resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
+resource containerRegistry 'Microsoft.ContainerRegistry/registries@2019-05-01' = {
   name: '${namePrefix}acr'
   location: location
   sku: {
@@ -60,7 +60,7 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' =
 resource roleAssignContainerRegistry 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(containerRegistry.id, '${namePrefix}-aks', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
   properties: {
-    roleDefinitionId: '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
     principalId: reference('${namePrefix}-aks', '2021-07-01').identityProfile.kubeletidentity.objectId
   }
   scope: containerRegistry
@@ -219,7 +219,7 @@ resource aksVNet 'Microsoft.Network/virtualNetworks@2020-11-01' = if (enableWind
 resource roleAssignVNet 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = if (enableWindows) {
   name: guid('${aksVNet.id}/subnets/default', '${namePrefix}-vnet', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
   properties: {
-    roleDefinitionId: '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/4d97b98b-1d4f-4787-a291-c67834d212e7'
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4d97b98b-1d4f-4787-a291-c67834d212e7')
     principalId: aks.identity.principalId
   }
   scope: aksVNet::defaultSubnet
