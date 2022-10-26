@@ -105,8 +105,6 @@ jobs:
         with:
           repository: ${{ env.CHECKOUT_REPO }}
           ref: ${{ env.CHECKOUT_REF }}
-      - name: idk
-        run: echo ${{ secrets.AZURE_CREDENTIALS }}
       - name: Login to Azure
         if: env.CHECKOUT_REPO != ''
         uses: azure/login@v1
