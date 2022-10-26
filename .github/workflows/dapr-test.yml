@@ -34,7 +34,7 @@ on:
     types: [e2e-test]
 env:
   # Version of Go
-  GOVER: "1.19"
+  GOVER: "^1.19.2"
   # Configure proxy for Go modules
   GOPROXY: https://proxy.golang.org
   # Version of kubectl
@@ -51,7 +51,7 @@ env:
   HA_MODE: true
   # Space-separated of supported Azure regions: one will be picked randomly for each cluster
   AZURE_REGIONS: "westus3"
-  AZURE_ARM_REGIONS: "eastus"
+  AZURE_ARM_REGIONS: "westus2"
   # Container registry where to cache e2e test images
   DAPR_CACHE_REGISTRY: "dapre2eacr.azurecr.io"
   # Whether to collect TCP dumps
@@ -110,6 +110,7 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       - name: Build test prefix
         if: env.CHECKOUT_REPO != ''
         run: |
@@ -153,8 +154,8 @@ jobs:
                 dateTag="${DATE_TAG}" \
                 diagLogAnalyticsWorkspaceResourceId="${{ secrets.AZURE_DIAG_LOG_ANALYTICS_WORKSPACE_ID }}" \
                 diagStorageResourceId="${{ secrets.AZURE_DIAG_STORAGE_ID }}" \
-                armDiagLogAnalyticsWorkspaceResourceId="${{ secrets.ARM_AZURE_DIAG_LOG_ANALYTICS_WORKSPACE_ID }}" \
-                armDiagStorageResourceId="${{ secrets.ARM_AZURE_DIAG_STORAGE_ID }}" \
+                armDiagLogAnalyticsWorkspaceResourceId="${{ secrets.AZURE_ARM_DIAG_LOG_ANALYTICS_WORKSPACE_ID }}" \
+                armDiagStorageResourceId="${{ secrets.AZURE_ARM_DIAG_STORAGE_ID }}" \
               && success=true \
               && break \
               || sleep 120
@@ -522,6 +523,10 @@ jobs:
       - name: Show dapr configurations
         if: env.TEST_PREFIX != ''
         run: kubectl get configurations daprsystem -n ${{ env.DAPR_NAMESPACE }} -o yaml
+      - name: Determine if E2E tests should run
+        if: env.TEST_PREFIX != '' && env.TEST_CLOUD_ENV != ''
+        run: ./tests/test-infra/skip_${{ env.TEST_CLOUD_ENV }}.sh
+        shell: bash
       - name: Run E2E tests
         if: env.TEST_PREFIX != '' && env.SKIP_E2E != 'true'
         run: make test-e2e-all
