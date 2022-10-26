@@ -1,5 +1,5 @@
 /*
-Copyright 2021 The Dapr Authors
+Copyright 2022 The Dapr Authors
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -11,11 +11,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package injector
+package main
 
-// PatchOperation represents a discreet change to be applied to a Kubernetes resource.
-type PatchOperation struct {
-	Op    string      `json:"op"`
-	Path  string      `json:"path"`
-	Value interface{} `json:"value,omitempty"`
+import (
+	dapr "github.com/dapr-sandbox/components-go-sdk"
+	"github.com/dapr-sandbox/components-go-sdk/state/v1"
+
+	"github.com/dapr/components-contrib/state/redis"
+	"github.com/dapr/kit/logger"
+)
+
+var log = logger.NewLogger("redis-pluggable")
+
+func main() {
+	dapr.Register("redis-pluggable",
+		dapr.WithStateStore(func() state.Store {
+			return redis.NewRedisStateStore(log)
+		}),
+	)
+	dapr.MustRun()
 }

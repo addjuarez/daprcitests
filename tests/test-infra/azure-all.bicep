@@ -38,10 +38,10 @@ param diagLogAnalyticsWorkspaceResourceId string = ''
 @description('If set, sends certain diagnostic logs to Azure Storage')
 param diagStorageResourceId string = ''
 
-@description('If set, sends certain arm diagnostic logs to Log Analytics')
+@description('If set, sends certain Arm64 diagnostic logs to Log Analytics')
 param armDiagLogAnalyticsWorkspaceResourceId string = ''
 
-@description('If set, sends certain arm diagnostic logs to Azure Storage')
+@description('If set, sends certain Arm64 diagnostic logs to Azure Storage')
 param armDiagStorageResourceId string = ''
 
 @description('If enabled, deploy Cosmos DB')

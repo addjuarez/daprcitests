@@ -21,6 +21,7 @@ import (
 	"sort"
 	"strconv"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/dapr/components-contrib/lock"
@@ -267,53 +268,57 @@ func UnlockResponseToGrpcResponse(compResp *lock.UnlockResponse) *runtimev1pb.Un
 	return result
 }
 
+// APIOpts contains options for NewAPI.
+type APIOpts struct {
+	AppID                       string
+	AppChannel                  channel.AppChannel
+	Resiliency                  resiliency.Provider
+	StateStores                 map[string]state.Store
+	SecretStores                map[string]secretstores.SecretStore
+	SecretsConfiguration        map[string]config.SecretsScope
+	ConfigurationStores         map[string]configuration.Store
+	LockStores                  map[string]lock.Store
+	PubsubAdapter               runtimePubsub.Adapter
+	DirectMessaging             messaging.DirectMessaging
+	Actor                       actors.Actors
+	SendToOutputBindingFn       func(name string, req *bindings.InvokeRequest) (*bindings.InvokeResponse, error)
+	TracingSpec                 config.TracingSpec
+	AccessControlList           *config.AccessControlList
+	AppProtocol                 string
+	Shutdown                    func()
+	GetComponentsFn             func() []componentsV1alpha.Component
+	GetComponentsCapabilitiesFn func() map[string][]string
+}
+
 // NewAPI returns a new gRPC API.
-func NewAPI(
-	appID string, appChannel channel.AppChannel,
-	resiliency resiliency.Provider,
-	stateStores map[string]state.Store,
-	secretStores map[string]secretstores.SecretStore,
-	secretsConfiguration map[string]config.SecretsScope,
-	configurationStores map[string]configuration.Store,
-	lockStores map[string]lock.Store,
-	pubsubAdapter runtimePubsub.Adapter,
-	directMessaging messaging.DirectMessaging,
-	actor actors.Actors,
-	sendToOutputBindingFn func(name string, req *bindings.InvokeRequest) (*bindings.InvokeResponse, error),
-	tracingSpec config.TracingSpec,
-	accessControlList *config.AccessControlList,
-	appProtocol string,
-	getComponentsFn func() []componentsV1alpha.Component,
-	shutdown func(),
-	getComponentsCapabilitiesFn func() map[string][]string,
-) API {
+func NewAPI(opts APIOpts) API {
 	transactionalStateStores := map[string]state.TransactionalStore{}
-	for key, store := range stateStores {
+	for key, store := range opts.StateStores {
 		if state.FeatureTransactional.IsPresent(store.Features()) {
 			transactionalStateStores[key] = store.(state.TransactionalStore)
 		}
 	}
 	return &api{
-		directMessaging:            directMessaging,
-		actor:                      actor,
-		id:                         appID,
-		resiliency:                 resiliency,
-		appChannel:                 appChannel,
-		pubsubAdapter:              pubsubAdapter,
-		stateStores:                stateStores,
+		directMessaging:            opts.DirectMessaging,
+		actor:                      opts.Actor,
+		id:                         opts.AppID,
+		resiliency:                 opts.Resiliency,
+		appChannel:                 opts.AppChannel,
+		pubsubAdapter:              opts.PubsubAdapter,
+		stateStores:                opts.StateStores,
 		transactionalStateStores:   transactionalStateStores,
-		secretStores:               secretStores,
-		configurationStores:        configurationStores,
+		secretStores:               opts.SecretStores,
+		configurationStores:        opts.ConfigurationStores,
 		configurationSubscribe:     make(map[string]chan struct{}),
-		lockStores:                 lockStores,
-		secretsConfiguration:       secretsConfiguration,
-		sendToOutputBindingFn:      sendToOutputBindingFn,
-		tracingSpec:                tracingSpec,
-		accessControlList:          accessControlList,
-		appProtocol:                appProtocol,
-		shutdown:                   shutdown,
-		getComponentsFn:            getComponentsFn,
-		getComponentsCapabilitesFn: getComponentsCapabilitiesFn,
+		lockStores:                 opts.LockStores,
+		secretsConfiguration:       opts.SecretsConfiguration,
+		sendToOutputBindingFn:      opts.SendToOutputBindingFn,
+		tracingSpec:                opts.TracingSpec,
+		accessControlList:          opts.AccessControlList,
+		appProtocol:                opts.AppProtocol,
+		shutdown:                   opts.Shutdown,
+		getComponentsFn:            opts.GetComponentsFn,
+		getComponentsCapabilitesFn: opts.GetComponentsCapabilitiesFn,
 		daprRunTimeVersion:         version.Version(),
 	}
 }
@@ -493,13 +498,9 @@ func (a *api) InvokeService(ctx context.Context, in *runtimev1pb.InvokeServiceRe
 
 	policy := a.resiliency.EndpointPolicy(ctx, in.Id, fmt.Sprintf("%s:%s", in.Id, req.Message().Method))
 	var resp *invokev1.InvokeMethodResponse
-	var requestErr bool
 	respError := policy(func(ctx context.Context) (rErr error) {
-		requestErr = false
 		resp, rErr = a.directMessaging.Invoke(ctx, in.Id, req)
-
 		if rErr != nil {
-			requestErr = true
 			rErr = status.Errorf(codes.Internal, messages.ErrDirectInvoke, in.Id, rErr)
 			return rErr
 		}
@@ -509,7 +510,7 @@ func (a *api) InvokeService(ctx context.Context, in *runtimev1pb.InvokeServiceRe
 		// If the status is OK, respError will be nil.
 		var respError error
 		if resp.IsHTTPResponse() {
-			errorMessage := []byte("")
+			errorMessage := []byte{}
 			if resp != nil {
 				_, errorMessage = resp.RawData()
 			}
@@ -528,8 +529,12 @@ func (a *api) InvokeService(ctx context.Context, in *runtimev1pb.InvokeServiceRe
 	})
 
 	// In this case, there was an error with the actual request or a resiliency policy stopped the request.
-	if requestErr || (errors.Is(respError, context.DeadlineExceeded) || breaker.IsErrorPermanent(respError)) {
-		return nil, respError
+	if respError != nil {
+		// Check if it's returned by status.Errorf
+		_, ok := respError.(interface{ GRPCStatus() *status.Status })
+		if ok || (errors.Is(respError, context.DeadlineExceeded) || breaker.IsErrorPermanent(respError)) {
+			return nil, respError
+		}
 	}
 	return resp.Message(), respError
 }
@@ -546,7 +551,8 @@ func (a *api) InvokeBinding(ctx context.Context, in *runtimev1pb.InvokeBindingRe
 	// Allow for distributed tracing by passing context metadata.
 	if incomingMD, ok := metadata.FromIncomingContext(ctx); ok {
 		for key, val := range incomingMD {
-			req.Metadata[key] = val[0]
+			sanitizedKey := invokev1.ReservedGRPCMetadataToDaprPrefixHeader(key)
+			req.Metadata[sanitizedKey] = val[0]
 		}
 	}
 
@@ -638,16 +644,23 @@ func (a *api) GetBulkState(ctx context.Context, in *runtimev1pb.GetBulkStateRequ
 		fn := func(param interface{}) {
 			req := param.(*state.GetRequest)
 			var r *state.GetResponse
-			err = policy(func(ctx context.Context) (rErr error) {
-				r, rErr = store.Get(req)
-				return rErr
+			ok := atomic.Bool{}
+			policyErr := policy(func(ctx context.Context) error {
+				res, rErr := store.Get(req)
+				if rErr != nil {
+					return rErr
+				}
+				if ok.CompareAndSwap(false, true) {
+					r = res
+				}
+				return nil
 			})
 
 			item := &runtimev1pb.BulkStateItem{
 				Key: stateLoader.GetOriginalStateKey(req.Key),
 			}
-			if err != nil {
-				item.Error = err.Error()
+			if policyErr != nil {
+				item.Error = policyErr.Error()
 			} else if r != nil {
 				item.Data = r.Data
 				item.Etag = stringValueOrEmpty(r.ETag)
@@ -1008,7 +1021,7 @@ func (a *api) GetSecret(ctx context.Context, in *runtimev1pb.GetSecretRequest) (
 	policy := a.resiliency.ComponentOutboundPolicy(ctx, secretStoreName, resiliency.Secretstore)
 	var getResponse secretstores.GetSecretResponse
 	err := policy(func(ctx context.Context) (rErr error) {
-		getResponse, rErr = a.secretStores[secretStoreName].GetSecret(req)
+		getResponse, rErr = a.secretStores[secretStoreName].GetSecret(ctx, req)
 		return rErr
 	})
 	elapsed := diag.ElapsedSince(start)
@@ -1051,7 +1064,7 @@ func (a *api) GetBulkSecret(ctx context.Context, in *runtimev1pb.GetBulkSecretRe
 	policy := a.resiliency.ComponentOutboundPolicy(ctx, secretStoreName, resiliency.Secretstore)
 	var getResponse secretstores.BulkGetSecretResponse
 	err := policy(func(ctx context.Context) (rErr error) {
-		getResponse, rErr = a.secretStores[secretStoreName].BulkGetSecret(req)
+		getResponse, rErr = a.secretStores[secretStoreName].BulkGetSecret(ctx, req)
 		return rErr
 	})
 	elapsed := diag.ElapsedSince(start)
@@ -1437,6 +1450,11 @@ func (a *api) InvokeActor(ctx context.Context, in *runtimev1pb.InvokeActorReques
 	req := invokev1.NewInvokeMethodRequest(in.Method)
 	req.WithActor(in.ActorType, in.ActorId)
 	req.WithRawData(in.Data, "")
+	reqMetadata := map[string][]string{}
+	for k, v := range in.Metadata {
+		reqMetadata[k] = []string{v}
+	}
+	req.WithMetadata(reqMetadata)
 
 	// Unlike other actor calls, resiliency is handled here for invocation.
 	// This is due to actor invocation involving a lookup for the host.
@@ -1632,6 +1650,7 @@ func (h *configurationEventHandler) updateEventHandler(ctx context.Context, e *c
 		Id:    e.ID,
 	}); err != nil {
 		apiServerLogger.Debug(err)
+		return err
 	}
 	return nil
 }
@@ -1701,6 +1720,12 @@ func (a *api) SubscribeConfigurationAlpha1(request *runtimev1pb.SubscribeConfigu
 
 	if err != nil {
 		err = status.Errorf(codes.InvalidArgument, messages.ErrConfigurationSubscribe, req.Keys, request.StoreName, err.Error())
+		apiServerLogger.Debug(err)
+		return err
+	}
+	if err := handler.serverStream.Send(&runtimev1pb.SubscribeConfigurationResponse{
+		Id: id,
+	}); err != nil {
 		apiServerLogger.Debug(err)
 		return err
 	}
