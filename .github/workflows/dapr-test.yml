@@ -325,11 +325,6 @@ jobs:
             make docker-build
           fi
         shell: bash
-      - name: Wait for Azure Container Registry deployment
-        timeout-minutes: 30
-        if: env.TEST_PREFIX != ''
-        run: ./tests/test-infra/wait_${{ env.TEST_CLOUD_ENV }}_registry.sh ${{ env.TEST_PREFIX }}acr
-        shell: bash
       - name: Login to Azure Container Registry for Windows
         if: runner.os == 'Windows' && env.TEST_PREFIX != ''
         run: |
@@ -338,7 +333,7 @@ jobs:
       - name: Login to Azure Container Registry for Linux or Mac
         if: runner.os != 'Windows' && env.TEST_PREFIX != ''
         run: |
-          az acr login --name ${{ env.TEST_PREFIX }}acr
+          az acr login --name ${{ env.TEST_PREFIX }}acr --resource-group "${{ env.TEST_RESOURCE_GROUP }}"
         shell: bash
       - name: Push Dapr container images
         if: env.TEST_PREFIX != ''
