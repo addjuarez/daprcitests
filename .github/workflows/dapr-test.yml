@@ -333,7 +333,7 @@ jobs:
       - name: Login to Azure Container Registry for Linux or Mac
         if: runner.os != 'Windows' && env.TEST_PREFIX != ''
         run: |
-          sleep 180
+          sleep 300
           az acr login --name ${{ env.TEST_PREFIX }}acr --resource-group "${{ env.TEST_RESOURCE_GROUP }}"
         shell: bash
       - name: Push Dapr container images
