@@ -10,7 +10,7 @@ require (
 	github.com/cenkalti/backoff/v4 v4.1.3
 	github.com/dapr/components-contrib v1.9.1-0.20221025205611-e38369028650
 	github.com/dapr/kit v0.0.3-0.20221009070203-ca4d40d89ed5
-	github.com/fasthttp/router v1.4.12
+	github.com/fasthttp/router v1.4.17
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-logr/logr v1.2.3
@@ -40,7 +40,7 @@ require (
 	github.com/sony/gobreaker v0.5.0
 	github.com/stretchr/testify v1.8.0
 	github.com/tidwall/transform v0.0.0-20201103190739-32f242e2dbde
-	github.com/valyala/fasthttp v1.40.0
+	github.com/valyala/fasthttp v1.44.0
 	go.opencensus.io v0.23.0
 	go.opentelemetry.io/otel v1.11.1
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.11.1
@@ -303,7 +303,7 @@ require (
 	github.com/rs/zerolog v1.25.0 // indirect
 	github.com/samuel/go-zookeeper v0.0.0-20201211165307-7117e9ea2414 // indirect
 	github.com/satori/go.uuid v1.2.1-0.20181028125025-b2ce2384e17b // indirect
-	github.com/savsgio/gotils v0.0.0-20220530130905-52f3993e8d6d // indirect
+	github.com/savsgio/gotils v0.0.0-20230208104028-c358bd845dee // indirect
 	github.com/sendgrid/rest v2.6.9+incompatible // indirect
 	github.com/sendgrid/sendgrid-go v3.12.0+incompatible // indirect
 	github.com/shirou/gopsutil v3.20.11+incompatible // indirect
