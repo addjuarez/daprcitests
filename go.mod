@@ -28,7 +28,7 @@ require (
 	github.com/hashicorp/golang-lru v0.5.4
 	github.com/hashicorp/raft v1.3.11
 	github.com/hashicorp/raft-boltdb v0.0.0-20220329195025-15018e9b97e0
-	github.com/jhump/protoreflect v1.13.0
+	github.com/jhump/protoreflect v1.15.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1
 	github.com/mitchellh/mapstructure v1.5.1-0.20220423185008-bf980b35cac4
@@ -38,7 +38,7 @@ require (
 	github.com/prometheus/client_model v0.3.0
 	github.com/prometheus/common v0.37.0
 	github.com/sony/gobreaker v0.5.0
-	github.com/stretchr/testify v1.8.0
+	github.com/stretchr/testify v1.8.1
 	github.com/tidwall/transform v0.0.0-20201103190739-32f242e2dbde
 	github.com/valyala/fasthttp v1.40.0
 	go.opencensus.io v0.23.0
@@ -52,10 +52,10 @@ require (
 	go.uber.org/atomic v1.10.0
 	go.uber.org/automaxprocs v1.5.1
 	go.uber.org/ratelimit v0.2.0
-	golang.org/x/net v0.1.0
+	golang.org/x/net v0.7.0
 	google.golang.org/genproto v0.0.0-20221018160656-63c7b68cfc55
 	google.golang.org/grpc v1.50.1
-	google.golang.org/protobuf v1.28.1
+	google.golang.org/protobuf v1.28.2-0.20230222093303-bc1253ad3743
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.25.3
 	k8s.io/apiextensions-apiserver v0.25.3
@@ -147,6 +147,7 @@ require (
 	github.com/bits-and-blooms/bitset v1.2.0 // indirect
 	github.com/boltdb/bolt v1.3.1 // indirect
 	github.com/bradfitz/gomemcache v0.0.0-20220106215444-fb4bf637b56d // indirect
+	github.com/bufbuild/protocompile v0.4.0 // indirect
 	github.com/camunda/zeebe/clients/go/v8 v8.1.2 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
@@ -316,7 +317,7 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stathat/consistent v1.0.0 // indirect
 	github.com/stoewer/go-strcase v1.2.0 // indirect
-	github.com/stretchr/objx v0.4.0 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/supplyon/gremcos v0.1.38 // indirect
 	github.com/tchap/go-patricia/v2 v2.3.1 // indirect
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.518 // indirect
@@ -351,9 +352,9 @@ require (
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
 	golang.org/x/oauth2 v0.1.0 // indirect
 	golang.org/x/sync v0.0.0-20220929204114-8fcdb60fdcc0 // indirect
-	golang.org/x/sys v0.1.0 // indirect
-	golang.org/x/term v0.1.0 // indirect
-	golang.org/x/text v0.4.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/term v0.5.0 // indirect
+	golang.org/x/text v0.7.0 // indirect
 	golang.org/x/time v0.0.0-20220922220347-f3bd1da661af // indirect
 	golang.org/x/tools v0.1.12 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
